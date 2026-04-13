@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptVid – Free AI Video Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--s1:#0f1219;--s2:#161b26;--s3:#1c2233;
+  --b0:rgba(255,255,255,0.05);--b1:rgba(255,255,255,0.10);--b2:rgba(255,255,255,0.18);
+  --tx:#eef0ff;--mu:#5a6380;--mu2:#8892b0;
+  --blue:#4d8fff;--purple:#9f6eff;--green:#10e898;--amber:#ffb830;--red:#ff5252;--pink:#ff6eb4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(rgba(77,143,255,.025)1px,transparent 1px),linear-gradient(90deg,rgba(77,143,255,.025)1px,transparent 1px);
+  background-size:48px 48px}
+
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 1.25rem}
+
+/* ── HEADER ── */
+nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--b0);padding:.9rem 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;max-width:980px;margin:0 auto;padding:0 1.25rem}
+.logo{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;background:linear-gradient(130deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-pill{background:rgba(16,232,152,.1);border:1px solid rgba(16,232,152,.22);color:var(--green);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .75rem;border-radius:50px}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:3.5rem 0 2.5rem}
+.hero-chip{display:inline-flex;align-items:center;gap:.45rem;background:rgba(77,143,255,.08);border:1px solid rgba(77,143,255,.2);color:var(--blue);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .9rem;border-radius:50px;margin-bottom:1.25rem;animation:up .5s ease both}
+.dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:.9rem;animation:up .5s .08s ease both}
+h1 em{font-style:normal;background:linear-gradient(130deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--mu2);font-size:1rem;line-height:1.75;max-width:520px;margin:0 auto;animation:up .5s .15s ease both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ALERT BOX ── */
+.how-alert{background:rgba(255,184,48,.06);border:1px solid rgba(255,184,48,.25);border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:2rem;display:flex;gap:.9rem;align-items:flex-start;animation:up .5s .2s ease both}
+.alert-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem}
+.alert-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--amber);margin-bottom:.3rem}
+.alert-body{font-size:.82rem;color:var(--mu2);line-height:1.65}
+.alert-body strong{color:var(--tx);font-weight:600}
+
+/* ── STEPS ── */
+.steps-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.75rem;margin-bottom:2rem;animation:up .5s .22s ease both}
+.step{background:var(--s1);border:1px solid var(--b0);border-radius:14px;padding:1rem 1.1rem}
+.step-n{width:28px;height:28px;border-radius:50%;background:rgba(77,143,255,.12);border:1px solid rgba(77,143,255,.25);color:var(--blue);font-family:'Syne',sans-serif;font-weight:800;font-size:.82rem;display:flex;align-items:center;justify-content:center;margin-bottom:.6rem}
+.step-t{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:.25rem}
+.step-d{font-size:.75rem;color:var(--mu2);line-height:1.55}
+
+/* ── PROMPT CARD ── */
+.pcard{background:var(--s1);border:1px solid var(--b0);border-radius:18px;overflow:hidden;margin-bottom:1.5rem;animation:up .5s .28s ease both;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.pcard-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--b0)}
+.section-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--mu);margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
+.section-lbl::before{content:'';width:3px;height:3px;background:var(--blue);border-radius:50%;display:block}
+textarea{width:100%;min-height:120px;background:var(--s2);border:1px solid var(--b0);border-radius:11px;color:var(--tx);font-family:'Epilogue',sans-serif;font-size:.97rem;line-height:1.7;padding:.9rem 1rem;resize:vertical;outline:none;transition:border-color .2s}
+textarea:focus{border-color:rgba(77,143,255,.4)}
+textarea::placeholder{color:var(--mu)}
+.char-row{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem}
+.char{font-size:.73rem;color:var(--mu)}
+.char span{color:var(--blue)}
+.ex-btns{display:flex;gap:.4rem;flex-wrap:wrap}
+.ex-btn{background:var(--s2);border:1px solid var(--b1);color:var(--mu2);font-size:.72rem;font-family:'Epilogue',sans-serif;padding:.3rem .65rem;border-radius:6px;cursor:pointer;transition:all .15s}
+.ex-btn:hover{color:var(--tx);border-color:var(--b2)}
+
+/* settings row */
+.settings{display:flex;flex-wrap:wrap;gap:.65rem;padding:1rem 1.5rem;border-bottom:1px solid var(--b0)}
+.sg{display:flex;flex-direction:column;gap:.28rem;flex:1;min-width:120px}
+.sg label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mu);font-weight:700}
+select{background:var(--s2);border:1px solid var(--b0);color:var(--tx);font-family:'Epilogue',sans-serif;font-size:.85rem;padding:.5rem .75rem;border-radius:8px;outline:none;cursor:pointer;transition:border-color .2s;width:100%}
+select:focus{border-color:rgba(77,143,255,.4)}
+
+/* action row */
+.arow{display:flex;gap:.65rem;padding:1.1rem 1.5rem;flex-wrap:wrap}
+.btn-enh{flex:1;min-width:150px;background:linear-gradient(135deg,rgba(159,110,255,.18),rgba(77,143,255,.18));border:1px solid rgba(159,110,255,.3);color:#c59fff;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;padding:.8rem 1.2rem;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.45rem;letter-spacing:.02em}
+.btn-enh:hover{background:linear-gradient(135deg,rgba(159,110,255,.28),rgba(77,143,255,.28));transform:translateY(-1px)}
+.btn-enh:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-cp{background:var(--s2);border:1px solid var(--b1);color:var(--mu2);font-family:'Epilogue',sans-serif;font-size:.85rem;padding:.8rem 1.1rem;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem}
+.btn-cp:hover{color:var(--tx);border-color:var(--b2)}
+.btn-clr{background:transparent;border:1px solid rgba(255,82,82,.18);color:rgba(255,82,82,.55);font-family:'Epilogue',sans-serif;font-size:.85rem;padding:.8rem .95rem;border-radius:10px;cursor:pointer;transition:all .2s}
+.btn-clr:hover{background:rgba(255,82,82,.07);color:var(--red);border-color:rgba(255,82,82,.35)}
+
+/* enhanced box */
+.ebox{margin:0 1.5rem 1.5rem;padding:.9rem 1rem;background:linear-gradient(135deg,rgba(159,110,255,.07),rgba(77,143,255,.07));border:1px solid rgba(159,110,255,.22);border-radius:11px;display:none}
+.ebox.show{display:block;animation:up .35s ease}
+.ebox-lbl{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#c59fff;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.ebox-text{font-size:.9rem;line-height:1.75;color:var(--tx)}
+
+/* spinner */
+.spin{width:14px;height:14px;border:2px solid rgba(197,159,255,.3);border-top-color:#c59fff;border-radius:50%;animation:rot .65s linear infinite;display:none}
+.spin.on{display:inline-block}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ── TOOLS ── */
+.tools-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;animation:up .5s .32s ease both}
+.tools-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700}
+.tools-note{font-size:.75rem;color:var(--mu)}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.9rem;margin-bottom:2.5rem;animation:up .5s .36s ease both}
+
+.tcard{background:var(--s1);border:1px solid var(--b0);border-radius:16px;padding:1.2rem;transition:all .22s;position:relative;overflow:hidden}
+.tcard::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .22s;background:var(--tc-glow,rgba(77,143,255,.05));pointer-events:none}
+.tcard:hover{border-color:var(--tc,var(--blue));transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,0,0,.3)}
+.tcard:hover::after{opacity:1}
+.ttop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.8rem}
+.ticon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:var(--tc-ibg,rgba(77,143,255,.1));border:1px solid var(--tc-ib,rgba(77,143,255,.2));flex-shrink:0}
+.tbadges{display:flex;flex-direction:column;align-items:flex-end;gap:.28rem}
+.bf{background:rgba(16,232,152,.1);color:var(--green);border:1px solid rgba(16,232,152,.22);font-size:.62rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.18rem .48rem;border-radius:4px}
+.bl{background:rgba(255,184,48,.08);color:var(--amber);border:1px solid rgba(255,184,48,.2);font-size:.62rem;font-weight:600;padding:.18rem .48rem;border-radius:4px}
+.bh{background:rgba(255,82,82,.08);color:#ff7a7a;border:1px solid rgba(255,82,82,.2);font-size:.62rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.18rem .48rem;border-radius:4px}
+.tname{font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:.22rem}
+.tdesc{font-size:.78rem;color:var(--mu2);line-height:1.6;margin-bottom:.7rem}
+.tmeta{display:flex;gap:.38rem;flex-wrap:wrap;margin-bottom:.85rem}
+.tag{background:var(--s2);border:1px solid var(--b0);color:var(--mu2);font-size:.67rem;padding:.18rem .5rem;border-radius:50px}
+.tag.green{color:var(--green);border-color:rgba(16,232,152,.18)}
+
+/* LAUNCH BUTTON — big, obvious, direct link */
+.launch-a{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.8rem;border-radius:10px;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.02em;text-decoration:none;cursor:pointer;transition:all .2s;border:1px solid var(--tc-border,rgba(77,143,255,.3));background:var(--tc-btn,rgba(77,143,255,.14));color:var(--tc,var(--blue))}
+.launch-a:hover{filter:brightness(1.25);transform:translateY(-1px)}
+.arr{transition:transform .2s;display:inline-block}
+.launch-a:hover .arr{transform:translateX(3px)}
+
+/* instruction panel inside card */
+.how-panel{background:var(--s2);border:1px solid var(--b0);border-radius:8px;padding:.7rem .85rem;margin-bottom:.75rem;display:none}
+.how-panel.open{display:block}
+.how-steps{list-style:none;display:flex;flex-direction:column;gap:.35rem}
+.how-steps li{font-size:.75rem;color:var(--mu2);line-height:1.55;display:flex;align-items:flex-start;gap:.5rem}
+.how-steps li::before{content:attr(data-n);width:17px;height:17px;border-radius:50%;background:rgba(77,143,255,.15);color:var(--blue);font-size:.63rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem}
+.toggle-how{background:none;border:none;color:var(--mu);font-size:.72rem;font-family:'Epilogue',sans-serif;cursor:pointer;padding:.15rem 0;text-decoration:underline;text-underline-offset:2px;margin-bottom:.6rem;transition:color .15s}
+.toggle-how:hover{color:var(--tx)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--b2);color:var(--tx);font-size:.85rem;padding:.65rem 1.4rem;border-radius:50px;box-shadow:0 8px 28px rgba(0,0,0,.4);z-index:999;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── HISTORY ── */
+.hist{margin-bottom:3rem;animation:up .5s .4s ease both}
+.hist-hdr{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--mu);margin-bottom:.7rem;display:flex;align-items:center;justify-content:space-between}
+.hist-clr{font-size:.72rem;cursor:pointer;color:var(--mu);transition:color .15s}
+.hist-clr:hover{color:var(--tx)}
+.hlist{display:flex;flex-direction:column;gap:.45rem}
+.hitem{background:var(--s1);border:1px solid var(--b0);border-radius:10px;padding:.75rem .95rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.65rem}
+.hitem:hover{border-color:var(--b1);background:var(--s2)}
+.htxt{flex:1;font-size:.82rem;color:var(--mu2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htime{font-size:.68rem;color:var(--mu);flex-shrink:0}
+.huse{font-size:.68rem;color:var(--blue);flex-shrink:0;opacity:0;transition:opacity .15s}
+.hitem:hover .huse{opacity:1}
+.hempty{font-size:.82rem;color:var(--mu);opacity:.55;text-align:center;padding:.85rem 0}
+
+footer{border-top:1px solid var(--b0);padding:1.75rem 0;text-align:center;font-size:.78rem;color:var(--mu);line-height:1.8}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">PromptVid</div>
+    <div class="nav-pill">✦ 100 % Free Tools</div>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-chip"><div class="dot"></div>Free AI Video Launcher</div>
+  <h1>Write a prompt.<br><em>Get a free video.</em></h1>
+  <p class="hero-sub">Enhance your idea with AI, then open any free video tool — your prompt is pre-copied so you just paste and generate.</p>
+</div>
+
+<!-- HOW IT WORKS ALERT -->
+<div class="how-alert">
+  <div class="alert-icon">📋</div>
+  <div>
+    <div class="alert-title">How to use this launcher</div>
+    <div class="alert-body">
+      <strong>Step 1 —</strong> Type your video idea below and click <strong>✦ Enhance Prompt</strong><br>
+      <strong>Step 2 —</strong> Your enhanced prompt is <strong>auto-copied to clipboard</strong><br>
+      <strong>Step 3 —</strong> Click <strong>"Open [Tool] →"</strong> on any card below — the site opens in a new tab<br>
+      <strong>Step 4 —</strong> On the tool's website, find the text box and press <strong>Ctrl+V (or Cmd+V)</strong> to paste, then generate!<br>
+      <strong>Note:</strong> This launcher cannot generate videos itself — it opens the real free tools for you.
+    </div>
+  </div>
+</div>
+
+<!-- STEPS -->
+<div class="steps-row">
+  <div class="step"><div class="step-n">1</div><div class="step-t">Write idea</div><div class="step-d">Describe your scene in plain language</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-t">Enhance it</div><div class="step-d">AI rewrites it into a detailed cinematic prompt</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-t">Click a tool</div><div class="step-d">Opens the free site — prompt is already copied</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-t">Paste & generate</div><div class="step-d">Ctrl+V on the tool website, then hit generate!</div></div>
+</div>
+
+<!-- PROMPT CARD -->
+<div class="pcard">
+  <div class="pcard-head">
+    <div class="section-lbl">Your Video Idea</div>
+    <textarea id="promptInput" placeholder="Describe your video...&#10;&#10;e.g. A samurai running through a bamboo forest at night, moonlight, fog, cinematic slow motion..." oninput="upChar()"></textarea>
+    <div class="char-row">
+      <div class="char"><span id="cc">0</span> characters</div>
+      <div class="ex-btns">
+        <button class="ex-btn" onclick="loadEx(0)">Example 1</button>
+        <button class="ex-btn" onclick="loadEx(1)">Example 2</button>
+        <button class="ex-btn" onclick="loadEx(2)">Example 3</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings">
+    <div class="sg"><label>Style</label>
+      <select id="st"><option>Cinematic</option><option>Anime</option><option>Photorealistic</option><option>3D CGI</option><option>Sci-Fi</option><option>Fantasy</option><option>Horror</option><option>Documentary</option></select>
+    </div>
+    <div class="sg"><label>Duration</label>
+      <select id="dur"><option>5 seconds</option><option>10 seconds</option><option>15 seconds</option></select>
+    </div>
+    <div class="sg"><label>Ratio</label>
+      <select id="rat"><option>16:9 Landscape</option><option>9:16 Portrait</option><option>1:1 Square</option></select>
+    </div>
+    <div class="sg"><label>Camera</label>
+      <select id="cam"><option>Auto</option><option>Slow zoom in</option><option>Aerial drone</option><option>Tracking shot</option><option>Handheld</option><option>Static wide</option></select>
+    </div>
+  </div>
+
+  <div class="arow">
+    <button class="btn-enh" id="enhBtn" onclick="enhance()">
+      <div class="spin" id="sp"></div>
+      <span id="enhTxt">✦ Enhance &amp; Copy Prompt</span>
+    </button>
+    <button class="btn-cp" onclick="copyNow()">⎘ Copy</button>
+    <button class="btn-clr" onclick="clearAll()">✕</button>
+  </div>
+
+  <div class="ebox" id="ebox">
+    <div class="ebox-lbl">✦ Enhanced — already copied to clipboard!</div>
+    <div class="ebox-text" id="etext"></div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<div class="tools-hdr">
+  <div class="tools-title">Free AI Video Tools — Click to Open</div>
+  <div class="tools-note">Prompt auto-copies on click</div>
+</div>
+<div class="tools-grid" id="tgrid"></div>
+
+<!-- HISTORY -->
+<div class="hist">
+  <div class="hist-hdr"><span>⟳ Recent Prompts</span><span class="hist-clr" onclick="clearHist()">Clear</span></div>
+  <div class="hlist" id="hlist"><div class="hempty">Prompts you enhance will appear here</div></div>
+</div>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    PromptVid prepares &amp; launches your prompt — actual video generation happens on each tool's website.<br>
+    All tools listed have a free tier. No credit card required to start.
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EX=[
+  "A lone samurai stands in the rain on a misty mountain. Cherry blossoms fall slowly. Moonlight cuts through the clouds. Wide cinematic shot.",
+  "Futuristic city at night, neon-lit streets, flying cars, people with holographic umbrellas, rain reflecting purple and blue lights. Blade Runner style.",
+  "A baby elephant playing in a golden savanna sunset, mother nearby, birds flying in the warm sky. National Geographic documentary style."
+];
+
+const TOOLS=[
+  {
+    name:"Kling AI",icon:"🎬",color:"#4d8fff",ibg:"rgba(77,143,255,.12)",ib:"rgba(77,143,255,.22)",btn:"rgba(77,143,255,.15)",border:"rgba(77,143,255,.3)",glow:"rgba(77,143,255,.06)",
+    desc:"Best free generator — stunning quality, 5–10 sec videos, 10 free credits daily.",
+    url:"https://klingai.com",limit:"~10 free/day",tags:["5s","10s","HD"],badges:["free","hot"],
+    steps:["Go to klingai.com (opens in new tab)","Click 'Text to Video' at the top menu","Paste your prompt with Ctrl+V in the text box","Select style and duration, then click Generate","Download your free video when done!"]
+  },
+  {
+    name:"Hailuo AI",icon:"🌊",color:"#10e898",ibg:"rgba(16,232,152,.12)",ib:"rgba(16,232,152,.22)",btn:"rgba(16,232,152,.14)",border:"rgba(16,232,152,.3)",glow:"rgba(16,232,152,.05)",
+    desc:"MiniMax powered. Excellent motion and cinematic output. Daily free credits.",
+    url:"https://hailuoai.video",limit:"Daily free credits",tags:["6s","Cinematic","Fast"],badges:["free","hot"],
+    steps:["Go to hailuoai.video (opens in new tab)","Click 'Create' or the text-to-video option","Paste your prompt (Ctrl+V) in the prompt field","Press Generate and wait 1–2 minutes","Download your video from the results page"]
+  },
+  {
+    name:"Pika Labs",icon:"⚡",color:"#ffb830",ibg:"rgba(255,184,48,.12)",ib:"rgba(255,184,48,.22)",btn:"rgba(255,184,48,.13)",border:"rgba(255,184,48,.3)",glow:"rgba(255,184,48,.05)",
+    desc:"Fast, free tier available. Great for social media clips and creative effects.",
+    url:"https://pika.art",limit:"Free tier",tags:["3s","5s","Social"],badges:["free"],
+    steps:["Go to pika.art (opens in new tab)","Sign up free with Google or email","Click 'Create' and select Text to Video","Paste prompt (Ctrl+V) and click Generate","Download from your dashboard when ready"]
+  },
+  {
+    name:"Luma Dream Machine",icon:"✨",color:"#a855f7",ibg:"rgba(168,85,247,.12)",ib:"rgba(168,85,247,.22)",btn:"rgba(168,85,247,.13)",border:"rgba(168,85,247,.3)",glow:"rgba(168,85,247,.06)",
+    desc:"Photorealistic AI video. Outstanding quality for nature and product shots.",
+    url:"https://lumalabs.ai/dream-machine",limit:"Free credits",tags:["5s","Photorealistic"],badges:["free"],
+    steps:["Go to lumalabs.ai/dream-machine (new tab)","Sign in free with Google","Click 'New Generation' → Text to Video","Paste your prompt (Ctrl+V) in the box","Click Generate and download when complete"]
+  },
+  {
+    name:"Runway Gen-3",icon:"🛸",color:"#ff6eb4",ibg:"rgba(255,110,180,.12)",ib:"rgba(255,110,180,.22)",btn:"rgba(255,110,180,.13)",border:"rgba(255,110,180,.3)",glow:"rgba(255,110,180,.06)",
+    desc:"Industry standard. 125 free starter credits, professional-grade output.",
+    url:"https://app.runwayml.com",limit:"125 free credits",tags:["10s","4K","Pro"],badges:["free"],
+    steps:["Go to app.runwayml.com (opens new tab)","Create a free account (no card needed)","Click 'Gen-3 Alpha' in the left menu","Paste your prompt (Ctrl+V) in the prompt box","Hit Generate and download your video!"]
+  },
+  {
+    name:"Genmo AI",icon:"🎭",color:"#06b6d4",ibg:"rgba(6,182,212,.12)",ib:"rgba(6,182,212,.22)",btn:"rgba(6,182,212,.13)",border:"rgba(6,182,212,.3)",glow:"rgba(6,182,212,.05)",
+    desc:"Truly unlimited free low-res videos. Perfect for rapid idea testing.",
+    url:"https://www.genmo.ai",limit:"Unlimited (low-res)",tags:["Free","Unlimited","Quick"],badges:["free","unlimited"],
+    steps:["Go to genmo.ai (opens in new tab)","Sign up free with email or Google","Click 'Create Video' on the dashboard","Paste prompt (Ctrl+V) and hit Create","No daily limit — generate as many as you want!"]
+  },
+  {
+    name:"Vidnoz AI",icon:"🎥",color:"#84cc16",ibg:"rgba(132,204,22,.12)",ib:"rgba(132,204,22,.22)",btn:"rgba(132,204,22,.13)",border:"rgba(132,204,22,.3)",glow:"rgba(132,204,22,.05)",
+    desc:"Free text-to-video with avatars and voiceover. Great for presentations.",
+    url:"https://www.vidnoz.com/ai-video-generator.html",limit:"Free plan",tags:["Avatar","Voice","Slides"],badges:["free"],
+    steps:["Go to vidnoz.com (opens in new tab)","Click 'Create Free Video' button","Choose Text to Video template","Paste prompt (Ctrl+V) and customize","Export your free video — no watermark on free plan"]
+  },
+  {
+    name:"Canva AI Video",icon:"🎨",color:"#f97316",ibg:"rgba(249,115,22,.12)",ib:"rgba(249,115,22,.22)",btn:"rgba(249,115,22,.13)",border:"rgba(249,115,22,.3)",glow:"rgba(249,115,22,.05)",
+    desc:"Free AI video inside Canva. Easy drag-and-drop, great for social content.",
+    url:"https://www.canva.com/ai-video-generator/",limit:"Free plan",tags:["Easy","Social","Branded"],badges:["free"],
+    steps:["Go to canva.com (opens new tab)","Sign up free or log in","Search 'AI Video Generator' in templates","Paste your prompt (Ctrl+V) in the AI box","Download or share directly from Canva"]
+  }
+];
+
+let hist=JSON.parse(localStorage.getItem('pvh2')||'[]');
+let lastPrompt='';
+
+function buildTools(){
+  const g=document.getElementById('tgrid');
+  g.innerHTML='';
+  TOOLS.forEach(t=>{
+    const badges=t.badges.map(b=>{
+      if(b==='free')return`<span class="bf">FREE</span>`;
+      if(b==='hot')return`<span class="bh">🔥 HOT</span>`;
+      if(b==='unlimited')return`<span class="bl">∞ Unlimited</span>`;
+      return'';
+    }).join('');
+    const tags=t.tags.map(x=>`<span class="tag">${x}</span>`).join('');
+    const steps=t.steps.map((s,i)=>`<li data-n="${i+1}">${s}</li>`).join('');
+    const card=document.createElement('div');
+    card.className='tcard';
+    card.style.cssText=`--tc:${t.color};--tc-glow:${t.glow};--tc-ibg:${t.ibg};--tc-ib:${t.ib};--tc-btn:${t.btn};--tc-border:${t.border}`;
+    card.innerHTML=`
+      <div class="ttop">
+        <div class="ticon">${t.icon}</div>
+        <div class="tbadges">${badges}</div>
+      </div>
+      <div class="tname">${t.name}</div>
+      <div class="tdesc">${t.desc}</div>
+      <div class="tmeta">${tags}<span class="tag green">${t.limit}</span></div>
+      <button class="toggle-how" onclick="toggleHow(this)">▸ How to use ${t.name}</button>
+      <div class="how-panel">
+        <ol class="how-steps">${steps}</ol>
+      </div>
+      <a class="launch-a" href="${t.url}" target="_blank" rel="noopener" onclick="onLaunch('${t.name}')">
+        Open ${t.name} <span class="arr">→</span>
+      </a>`;
+    g.appendChild(card);
+  });
+}
+
+function toggleHow(btn){
+  const panel=btn.nextElementSibling;
+  const open=panel.classList.toggle('open');
+  btn.textContent=(open?'▾ Hide ':'▸ How to use ')+btn.textContent.replace(/[▾▸] (How to use |Hide )/,'');
+}
+
+function onLaunch(name){
+  const p=lastPrompt||document.getElementById('promptInput').value.trim();
+  if(p){
+    try{navigator.clipboard.writeText(p)}catch(e){}
+    toast(`✓ Prompt copied! ${name} is opening — paste it there with Ctrl+V`);
+    saveHist(p);
+  } else {
+    toast(`Opening ${name} — type a prompt first for best results!`);
+  }
+}
+
+async function enhance(){
+  const raw=document.getElementById('promptInput').value.trim();
+  if(!raw){toast('⚠ Enter a prompt first!');return}
+  const style=document.getElementById('st').value;
+  const dur=document.getElementById('dur').value;
+  const rat=document.getElementById('rat').value;
+  const cam=document.getElementById('cam').value;
+  const btn=document.getElementById('enhBtn');
+  const sp=document.getElementById('sp');
+  const et=document.getElementById('enhTxt');
+  btn.disabled=true;sp.classList.add('on');et.textContent='Enhancing…';
+  let enhanced='';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:400,
+        system:`You are a professional AI video prompt engineer. Transform the user's simple idea into a rich, detailed prompt for AI video tools. Rules: under 180 words, include scene, lighting, camera movement (${cam}), mood, style (${style}), color. Ratio: ${rat}. Duration: ${dur}. Return ONLY the enhanced prompt, no explanations.`,
+        messages:[{role:'user',content:`Enhance: "${raw}"`}]
+      })
+    });
+    const d=await res.json();
+    enhanced=d.content?.[0]?.text||'';
+  }catch(e){}
+  if(!enhanced) enhanced=fallback(raw,style,cam);
+  lastPrompt=enhanced;
+  document.getElementById('etext').textContent=enhanced;
+  document.getElementById('ebox').classList.add('show');
+  try{await navigator.clipboard.writeText(enhanced);toast('✦ Enhanced & copied! Now click any tool below → paste with Ctrl+V');}
+  catch(e){toast('✦ Enhanced! Copy the text above, then open a tool below.')}
+  saveHist(enhanced);
+  btn.disabled=false;sp.classList.remove('on');et.textContent='✦ Enhance & Copy Prompt';
+}
+
+function fallback(raw,style,cam){
+  const sm={Cinematic:'cinematic film look, anamorphic lens, dramatic depth of field, professional color grade',Anime:'anime art style, vibrant saturated colors, fluid motion, Studio Ghibli-inspired atmosphere','Photorealistic':'photorealistic 8K, ultra-detailed textures, natural lighting, lifelike','3D CGI':'high-quality 3D CGI, Pixar-level render, subsurface scattering','Sci-Fi':'sci-fi aesthetic, futuristic neon, holographic elements, sleek technology',Fantasy:'epic fantasy, magical golden light, mythical grandeur, lush environment',Horror:'dark horror, desaturated, harsh shadows, unsettling tension',Documentary:'documentary realism, natural handheld, authentic raw feel'};
+  const cm={'Slow zoom in':'slow cinematic push-in zoom','Aerial drone':'sweeping aerial drone view from above','Tracking shot':'smooth tracking shot following subject','Handheld':'immersive handheld with subtle motion','Static wide':'locked-off wide establishing shot',Auto:'smooth fluid camera motion'};
+  return`${raw}. ${sm[style]||'cinematic quality'}. ${cm[cam]||'fluid camera'}. Smooth motion, professional color grading, high production value, stunning visual composition, no artifacts, crystal clear detail.`;
+}
+
+function copyNow(){
+  const p=lastPrompt||document.getElementById('promptInput').value.trim();
+  if(!p){toast('⚠ Nothing to copy yet!');return}
+  navigator.clipboard.writeText(p).then(()=>toast('✓ Copied to clipboard! Open any tool below and paste with Ctrl+V')).catch(()=>toast('⚠ Copy failed — please select and copy the text manually'));
+}
+
+function clearAll(){
+  document.getElementById('promptInput').value='';
+  document.getElementById('etext').textContent='';
+  document.getElementById('ebox').classList.remove('show');
+  document.getElementById('cc').textContent='0';
+  lastPrompt='';toast('Cleared!');
+}
+
+function upChar(){document.getElementById('cc').textContent=document.getElementById('promptInput').value.length}
+
+function loadEx(i){
+  document.getElementById('promptInput').value=EX[i];
+  upChar();
+  document.getElementById('ebox').classList.remove('show');
+  lastPrompt='';
+  toast('Example loaded — click ✦ Enhance & Copy Prompt');
+}
+
+function saveHist(t){
+  hist.unshift({t:t.slice(0,110)+(t.length>110?'…':''),d:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+  if(hist.length>12)hist.pop();
+  localStorage.setItem('pvh2',JSON.stringify(hist));
+  renderHist();
+}
+
+function renderHist(){
+  const l=document.getElementById('hlist');
+  if(!hist.length){l.innerHTML='<div class="hempty">Prompts you enhance will appear here</div>';return}
+  l.innerHTML=hist.map((h,i)=>`<div class="hitem" onclick="useHist(${i})">
+    <span style="font-size:.9rem;opacity:.5">⟳</span>
+    <div class="htxt">${h.t}</div>
+    <div class="htime">${h.d}</div>
+    <div class="huse">Use →</div>
+  </div>`).join('');
+}
+
+function useHist(i){
+  document.getElementById('promptInput').value=hist[i].t.replace('…','');
+  upChar();lastPrompt='';
+  document.getElementById('ebox').classList.remove('show');
+  toast('Loaded — click Enhance again!');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function clearHist(){hist=[];localStorage.removeItem('pvh2');renderHist();toast('History cleared')}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200);
+}
+
+buildTools();
+renderHist();
+</script>
+</body>
+</html>
